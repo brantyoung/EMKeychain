@@ -301,8 +301,6 @@ static BOOL _logErrors;
 	NSString *passwordString = [NSString stringWithUTF8String:passwordStore];
 	
 	SecKeychainItemFreeContent(NULL, password);
-
-	SecKeychainItemFreeContent(NULL, password);
 	
 	return [EMInternetKeychainItem internetKeychainItem:item forServer:serverString username:usernameString password:passwordString path:pathString port:port protocol:protocol];
 }
