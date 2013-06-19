@@ -70,8 +70,7 @@ static BOOL _logErrors;
 		return NO;
 	
 	[self willChangeValueForKey:@"password"];
-	[myPassword autorelease];
-	myPassword = [newPasswordString copy];
+	myPassword = newPasswordString;
 	[self didChangeValueForKey:@"password"];
 	
 	const char *newPassword = [newPasswordString UTF8String];
@@ -80,16 +79,14 @@ static BOOL _logErrors;
 }
 - (BOOL)setUsername:(NSString *)newUsername {
 	[self willChangeValueForKey:@"username"];
-	[myUsername autorelease];
-	myUsername = [newUsername copy];
+	myUsername = newUsername;
 	[self didChangeValueForKey:@"username"];	
 	
 	return [self modifyAttributeWithTag:kSecAccountItemAttr toBeString:newUsername];
 }
 - (BOOL)setLabel:(NSString *)newLabel {
 	[self willChangeValueForKey:@"label"];
-	[myLabel autorelease];
-	myLabel = [newLabel copy];
+	myLabel = newLabel;
 	[self didChangeValueForKey:@"label"];
 	
 	return [self modifyAttributeWithTag:kSecLabelItemAttr toBeString:newLabel];
@@ -99,11 +96,6 @@ static BOOL _logErrors;
 }
 - (void)dealloc {
 	if (coreKeychainItem) CFRelease(coreKeychainItem);
-	[myPassword release];
-	[myUsername release];
-	[myLabel release];
-	
-	[super dealloc];
 }
 @end
 
@@ -210,7 +202,7 @@ static BOOL _logErrors;
 		}
 		return nil;
 	}
-	NSString *passwordString = [NSString stringWithCString:password length:passwordLength];
+	NSString *passwordString = [NSString stringWithCString:password encoding:NSUTF8StringEncoding];
 	SecKeychainItemFreeContent(NULL, password);	// free the password data
 	
 	// search sec item for account name
@@ -238,7 +230,7 @@ static BOOL _logErrors;
 	buffer[attr.length] = '\0';
 	
 	// get the username
-	NSString *usernameString = [NSString stringWithCString:buffer length:attr.length];
+	NSString *usernameString = [NSString stringWithCString:buffer encoding:NSUTF8StringEncoding];
     
 	SecKeychainItemFreeContent(&list, NULL);	// free the list
 	
@@ -246,35 +238,35 @@ static BOOL _logErrors;
 }
 
 - (id)initWithCoreKeychainItem:(SecKeychainItemRef)item serviceName:(NSString *)serviceName username:(NSString *)username password:(NSString *)password {
-	if ((self = [super initWithCoreKeychainItem:item username:username password:password])) {
+	if ((self = [super initWithCoreKeychainItem:item username:username password:password]))
+    {
 		[self setValue:serviceName forKey:@"myServiceName"];
 	}
 	return self;
 }
-+ (id)genericKeychainItem:(SecKeychainItemRef)item forServiceName:(NSString *)serviceName username:(NSString *)username password:(NSString *)password {
-	return [[[EMGenericKeychainItem alloc] initWithCoreKeychainItem:item serviceName:serviceName username:username password:password] autorelease];
+
++ (id)genericKeychainItem:(SecKeychainItemRef)item forServiceName:(NSString *)serviceName username:(NSString *)username password:(NSString *)password
+{
+	return [[EMGenericKeychainItem alloc] initWithCoreKeychainItem:item serviceName:serviceName username:username password:password];
 }
+
 - (NSString *)serviceName {
 	return myServiceName;
 }
 
-- (BOOL)setServiceName:(NSString *)newServiceName {
+- (BOOL)setServiceName:(NSString *)newServiceName
+{
 	[self willChangeValueForKey:@"serviceName"];
-	[myServiceName autorelease];
-	myServiceName = [newServiceName copy];
+	myServiceName = newServiceName;
 	[self didChangeValueForKey:@"serviceName"];	
 	
 	return [self modifyAttributeWithTag:kSecServiceItemAttr toBeString:newServiceName];
 }
-- (void)dealloc {
-	[myServiceName release];
-	[super dealloc];
-}
-
 
 @end
 
 @implementation EMInternetKeychainItem
+
 + (EMInternetKeychainItem *)internetKeychainItemForServer:(NSString *)serverString withUsername:(NSString *)usernameString path:(NSString *)pathString port:(int)port protocol:(SecProtocolType)protocol {
 	if (!usernameString || [usernameString length] == 0 || !serverString || [serverString length] == 0)
 		return nil;
@@ -347,7 +339,7 @@ static BOOL _logErrors;
 	return self;
 }
 + (id)internetKeychainItem:(SecKeychainItemRef)item forServer:(NSString *)server username:(NSString *)username password:(NSString *)password path:(NSString *)path port:(int)port protocol:(SecProtocolType)protocol {
-	return [[[EMInternetKeychainItem alloc] initWithCoreKeychainItem:item server:server username:username password:password path:path port:port protocol:protocol] autorelease];
+	return [[EMInternetKeychainItem alloc] initWithCoreKeychainItem:item server:server username:username password:password path:path port:port protocol:protocol];
 }
 - (NSString *)server {
 	return myServer;
@@ -364,16 +356,14 @@ static BOOL _logErrors;
 
 - (BOOL)setServer:(NSString *)newServer {
 	[self willChangeValueForKey:@"server"];
-	[myServer autorelease];
-	myServer = [newServer copy];	
+	myServer = newServer;
 	[self didChangeValueForKey:@"server"];
 	
 	return [self modifyAttributeWithTag:kSecServerItemAttr toBeString:newServer];
 }
 - (BOOL)setPath:(NSString *)newPath {
 	[self willChangeValueForKey:@"path"];
-	[myPath autorelease];
-	myPath = [newPath copy];
+	myPath = newPath;
 	[self didChangeValueForKey:@"path"];
 	
 	return [self modifyAttributeWithTag:kSecPathItemAttr toBeString:newPath];
@@ -406,9 +396,5 @@ static BOOL _logErrors;
 	OSStatus returnStatus = SecKeychainItemModifyAttributesAndData(coreKeychainItem, &list, 0, NULL);
 	return (returnStatus == noErr);
 }
-- (void)dealloc {
-	[myServer release];
-	[myPath release];
-	[super dealloc];
-}
+
 @end
