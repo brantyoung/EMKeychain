@@ -131,8 +131,10 @@ static BOOL _logErrors;
 	SecKeychainItemRef item = nil;
 	OSStatus returnStatus = SecKeychainFindGenericPassword(NULL, (UInt32)strlen(serviceName), serviceName, (UInt32)strlen(username), username, &passwordLength, (void **)&password, &item);
 	if (returnStatus != noErr || !item) 	{
-		if (_logErrors)
-			NSLog(@"Error (%@) - %s", NSStringFromSelector(_cmd), GetMacOSStatusErrorString(returnStatus));
+		if (_logErrors) {
+            NSError *error = [NSError errorWithDomain:NSOSStatusErrorDomain code:returnStatus userInfo:nil];
+			NSLog(@"Error (%@) - %@", NSStringFromSelector(_cmd), error.localizedDescription);
+        }
 
 		return nil;
 	}
@@ -194,11 +196,10 @@ static BOOL _logErrors;
 	
 	SecKeychainItemRef item = nil;
 	OSStatus returnStatus = SecKeychainFindGenericPassword(NULL, (UInt32)strlen(serviceName), serviceName, 0, NULL, &passwordLength, (void **)&password, &item);
-	if (returnStatus != noErr || !item)
-	{
-		if (_logErrors)
-		{
-			NSLog(@"Error (%@) - %s", NSStringFromSelector(_cmd), GetMacOSStatusErrorString(returnStatus));
+	if (returnStatus != noErr || !item) {
+		if (_logErrors) {
+            NSError *error = [NSError errorWithDomain:NSOSStatusErrorDomain code:returnStatus userInfo:nil];
+			NSLog(@"Error (%@) - %@", NSStringFromSelector(_cmd), error.localizedDescription);
 		}
 		return nil;
 	}
@@ -213,11 +214,10 @@ static BOOL _logErrors;
 	list.attr = attributes;
 	
 	returnStatus = SecKeychainItemCopyContent(item, NULL, &list, NULL, NULL);
-	if (returnStatus != noErr)
-	{
-		if (_logErrors)
-		{
-			NSLog(@"Error (%@) - %s", NSStringFromSelector(_cmd), GetMacOSStatusErrorString(returnStatus));
+	if (returnStatus != noErr) {
+		if (_logErrors) {
+            NSError *error = [NSError errorWithDomain:NSOSStatusErrorDomain code:returnStatus userInfo:nil];
+			NSLog(@"Error (%@) - %@", NSStringFromSelector(_cmd), error.localizedDescription);
 		}
 		return nil;
 	}
@@ -267,7 +267,7 @@ static BOOL _logErrors;
 
 @implementation EMInternetKeychainItem
 
-+ (EMInternetKeychainItem *)internetKeychainItemForServer:(NSString *)serverString withUsername:(NSString *)usernameString path:(NSString *)pathString port:(int)port protocol:(SecProtocolType)protocol {
++ (EMInternetKeychainItem *)internetKeychainItemForServer:(NSString *)serverString withUsername:(NSString *)usernameString path:(NSString *)pathString port:(UInt16)port protocol:(SecProtocolType)protocol {
 	if (!usernameString || [usernameString length] == 0 || !serverString || [serverString length] == 0)
 		return nil;
 	
@@ -284,10 +284,11 @@ static BOOL _logErrors;
 	SecKeychainItemRef item = nil;
 	OSStatus returnStatus = SecKeychainFindInternetPassword(NULL, (UInt32)strlen(server), server, 0, NULL, (UInt32)strlen(username), username, (UInt32)strlen(path), path, port, protocol, kSecAuthenticationTypeDefault, &passwordLength, (void **)&password, &item);
 	
-	if (returnStatus != noErr || !item)
-	{
-		if (_logErrors)
-			NSLog(@"Error (%@) - %s", NSStringFromSelector(_cmd), GetMacOSStatusErrorString(returnStatus));
+	if (returnStatus != noErr || !item) {
+		if (_logErrors) {
+            NSError *error = [NSError errorWithDomain:NSOSStatusErrorDomain code:returnStatus userInfo:nil];
+			NSLog(@"Error (%@) - %@", NSStringFromSelector(_cmd), error.localizedDescription);
+        }
 		
 		return nil;
 	}
@@ -305,7 +306,7 @@ static BOOL _logErrors;
 	return [EMInternetKeychainItem internetKeychainItem:item forServer:serverString username:usernameString password:passwordString path:pathString port:port protocol:protocol];
 }
 
-+ (EMInternetKeychainItem *)addInternetKeychainItemForServer:(NSString *)serverString withUsername:(NSString *)usernameString password:(NSString *)passwordString path:(NSString *)pathString port:(int)port protocol:(SecProtocolType)protocol {
++ (EMInternetKeychainItem *)addInternetKeychainItemForServer:(NSString *)serverString withUsername:(NSString *)usernameString password:(NSString *)passwordString path:(NSString *)pathString port:(UInt16)port protocol:(SecProtocolType)protocol {
 	if (!usernameString || [usernameString length] == 0 || !serverString || [serverString length] == 0 || !passwordString || [passwordString length] == 0)
 		return nil;
 	
@@ -321,13 +322,14 @@ static BOOL _logErrors;
 	OSStatus returnStatus = SecKeychainAddInternetPassword(NULL, (UInt32)strlen(server), server, 0, NULL, (UInt32)strlen(username), username, (UInt32)strlen(path), path, port, protocol, kSecAuthenticationTypeDefault, (UInt32)strlen(password), (void *)password, &item);
 	
 	if (returnStatus != noErr || !item) {
-		NSLog(@"Error (%@) - %s", NSStringFromSelector(_cmd), GetMacOSStatusErrorString(returnStatus));
+        NSError *error = [NSError errorWithDomain:NSOSStatusErrorDomain code:returnStatus userInfo:nil];
+        NSLog(@"Error (%@) - %@", NSStringFromSelector(_cmd), error.localizedDescription);
 		return nil;
 	}
 	return [EMInternetKeychainItem internetKeychainItem:item forServer:serverString username:usernameString password:passwordString path:pathString port:port protocol:protocol];
 }
 
-- (id)initWithCoreKeychainItem:(SecKeychainItemRef)item server:(NSString *)server username:(NSString *)username password:(NSString *)password path:(NSString *)path port:(int)port protocol:(SecProtocolType)protocol {
+- (id)initWithCoreKeychainItem:(SecKeychainItemRef)item server:(NSString *)server username:(NSString *)username password:(NSString *)password path:(NSString *)path port:(UInt16)port protocol:(SecProtocolType)protocol {
 	if ((self = [super initWithCoreKeychainItem:item username:username password:password])) {
 		[self setValue:server forKey:@"myServer"];
 		[self setValue:path forKey:@"myPath"];
@@ -336,7 +338,7 @@ static BOOL _logErrors;
 	}
 	return self;
 }
-+ (id)internetKeychainItem:(SecKeychainItemRef)item forServer:(NSString *)server username:(NSString *)username password:(NSString *)password path:(NSString *)path port:(int)port protocol:(SecProtocolType)protocol {
++ (id)internetKeychainItem:(SecKeychainItemRef)item forServer:(NSString *)server username:(NSString *)username password:(NSString *)password path:(NSString *)path port:(UInt16)port protocol:(SecProtocolType)protocol {
 	return [[EMInternetKeychainItem alloc] initWithCoreKeychainItem:item server:server username:username password:password path:path port:port protocol:protocol];
 }
 - (NSString *)server {
@@ -345,7 +347,7 @@ static BOOL _logErrors;
 - (NSString *)path {
 	return myPath;
 }
-- (int)port {
+- (UInt16)port {
 	return myPort;
 }
 - (SecProtocolType)protocol {
@@ -366,7 +368,7 @@ static BOOL _logErrors;
 	
 	return [self modifyAttributeWithTag:kSecPathItemAttr toBeString:newPath];
 }
-- (BOOL)setPort:(int)newPort {
+- (BOOL)setPort:(UInt16)newPort {
 	[self willChangeValueForKey:@"port"];
 	myPort = newPort;
 	[self didChangeValueForKey:@"port"];

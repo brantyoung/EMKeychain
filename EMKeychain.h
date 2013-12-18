@@ -69,20 +69,20 @@
 {
 	NSString *myServer;
 	NSString *myPath;
-	int myPort;
+	UInt16 myPort;
 	SecProtocolType myProtocol;
 }
 
-+ (EMInternetKeychainItem *)internetKeychainItemForServer:(NSString *)serverString withUsername:(NSString *)usernameString path:(NSString *)pathString port:(int)port protocol:(SecProtocolType)protocol;
-+ (EMInternetKeychainItem *)addInternetKeychainItemForServer:(NSString *)serverString withUsername:(NSString *)usernameString password:(NSString *)passwordString path:(NSString *)pathString port:(int)port protocol:(SecProtocolType)protocol;
++ (EMInternetKeychainItem *)internetKeychainItemForServer:(NSString *)serverString withUsername:(NSString *)usernameString path:(NSString *)pathString port:(UInt16)port protocol:(SecProtocolType)protocol;
++ (EMInternetKeychainItem *)addInternetKeychainItemForServer:(NSString *)serverString withUsername:(NSString *)usernameString password:(NSString *)passwordString path:(NSString *)pathString port:(UInt16)port protocol:(SecProtocolType)protocol;
 
-+ (id)internetKeychainItem:(SecKeychainItemRef)item forServer:(NSString *)server username:(NSString *)username password:(NSString *)password path:(NSString *)path port:(int)port protocol:(SecProtocolType)protocol;
++ (id)internetKeychainItem:(SecKeychainItemRef)item forServer:(NSString *)server username:(NSString *)username password:(NSString *)password path:(NSString *)path port:(UInt16)port protocol:(SecProtocolType)protocol;
 - (NSString *)server;
 - (NSString *)path;
-- (int)port;
+- (UInt16)port;
 - (SecProtocolType)protocol;
 - (BOOL)setServer:(NSString *)newServer;
 - (BOOL)setPath:(NSString *)newPath;
-- (BOOL)setPort:(int)newPort;
+- (BOOL)setPort:(UInt16)newPort;
 - (BOOL)setProtocol:(SecProtocolType)newProtocol;
 @end
